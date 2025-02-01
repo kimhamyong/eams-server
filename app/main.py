@@ -3,30 +3,20 @@ import asyncio
 from gmqtt import Client as MQTTClient
 from dotenv import load_dotenv
 import os
-import ssl
 
+# .env 파일 로드
 load_dotenv()
 
-# hiveMQ Cloud 브로커 사용
-BROKER = os.getenv("MQTT_BROKER")
-PORT = int(os.getenv("MQTT_PORT"))
-USERNAME = os.getenv("MQTT_USERNAME")
-PASSWORD = os.getenv("MQTT_PASSWORD")
+# 환경 변수에서 MQTT 브로커 정보 가져오기
+BROKER = os.getenv("MQTT_BROKER")  
+PORT = int(os.getenv("MQTT_PORT")) 
+TOPIC = os.getenv("MQTT_TOPIC") 
 
 # FastAPI 애플리케이션 생성
 app = FastAPI()
 
-# TLS/SSL 설정 (hiveMQ Cloud)
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = True
-ssl_context.verify_mode = ssl.CERT_REQUIRED
-ssl_context.load_default_certs()
-
 # MQTT 클라이언트 생성
 mqtt_client = MQTTClient("client")
-
-# HiveMQ Cloud 인증 추가
-mqtt_client.set_auth_credentials(USERNAME, PASSWORD)
 
 # MQTT 메시지를 처리하는 콜백 함수
 def on_message(client, topic, payload, qos, properties):
@@ -35,13 +25,13 @@ def on_message(client, topic, payload, qos, properties):
 # MQTT 클라이언트 설정
 mqtt_client.on_message = on_message
 
-# MQTT 연결 및 구독 설정 (TLS 사용)
+# MQTT 연결 및 구독 설정 (TLS 제거)
 async def connect_and_subscribe():
     try:
         print(f"🚀 MQTT 클라이언트 연결 시도... (Broker: {BROKER}, Port: {PORT})")
-        await mqtt_client.connect(BROKER, port=PORT, ssl=ssl_context)  # ✅ TLS 적용
-        mqtt_client.subscribe("test", qos=0)  # 구독할 토픽
-        print("✅ MQTT client connected and subscribed")
+        await mqtt_client.connect(BROKER, port=PORT)  # ✅ TLS 제거
+        mqtt_client.subscribe(TOPIC, qos=0)  # ✅ 구독할 토픽
+        print(f"✅ MQTT client connected and subscribed to topic '{TOPIC}'")
     except Exception as e:
         print(f"❌ MQTT 연결 실패: {e}")
 
