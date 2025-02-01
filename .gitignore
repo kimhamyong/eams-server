@@ -1,0 +1,16 @@
+# MacOS 시스템 파일 
+.DS_Store
+
+# 환경 변수 파일 
+.env
+
+# 가상환경 폴더 
+venv/
+.env/
+env/
+
+# Python 캐시 및 빌드 파일
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
