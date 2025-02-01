@@ -3,3 +3,4 @@ uvicorn
 gmqtt
 redis
 websockets
+python-dotenv
