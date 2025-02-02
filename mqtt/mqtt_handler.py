@@ -4,7 +4,7 @@ import asyncio
 from gmqtt import Client as MQTTClient
 from dotenv import load_dotenv
 from app.services.redis_service import save_activity
-from ws.websocket_server import send_websocket_activity
+from ws.handlers.send_activity import send_websocket_activity
 
 load_dotenv()
 
