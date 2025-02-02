@@ -4,6 +4,7 @@ import asyncio
 from gmqtt import Client as MQTTClient
 from dotenv import load_dotenv
 from app.services.redis_service import save_activity
+from ws.websocket_server import send_websocket_activity
 
 load_dotenv()
 
@@ -21,8 +22,16 @@ async def on_message(client, topic, payload, qos, properties):
         sensor = data["sensor"]
         timestamp = data["timestamp"]
 
-        # Redis에 데이터 저장 (서비스 모듈 사용)
+        # Redis에 데이터 저장
         save_activity(gateway_id, sensor, timestamp)
+
+        # ✅ WebSocket을 통해 클라이언트에 전송
+        activity_data = {
+            "gateway_id": gateway_id,
+            "sensor": sensor,
+            "timestamp": timestamp
+        }
+        await send_websocket_activity(activity_data)
 
         print(f"📩 MQTT Received: {data}")
     

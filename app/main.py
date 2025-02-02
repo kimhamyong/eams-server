@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import asyncio
-from app.routers import redis_activity, notification
+from app.routers import redis_activity, send_activity
 from ws.websocket_server import websocket_endpoint  # ✅ WebSocket 엔드포인트 추가
 from mqtt.mqtt_handler import start_mqtt
 
@@ -9,7 +9,7 @@ app = FastAPI()
 
 # 라우터 추가 (API 엔드포인트)
 app.include_router(redis_activity.router, tags=["redis_activity"])
-app.include_router(notification.router, tags=["notification"])
+app.include_router(send_activity.router, tags=["send_activity"])
 
 # ✅ WebSocket 엔드포인트 등록
 app.add_api_websocket_route("/ws", websocket_endpoint)  # ✅ 추가!
