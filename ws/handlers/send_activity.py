@@ -1,14 +1,6 @@
-import json
-from ws.websocket_server import connected_clients
+from ws.websocket_server import manager
 
 async def send_websocket_activity(activity_data: dict):
-    """Send activity data to a specific gateway_id's connected clients"""
+    """특정 gateway_id를 가진 클라이언트에게 데이터 전송"""
     gateway_id = activity_data["gateway_id"]
-    
-    if gateway_id in connected_clients:
-        message = json.dumps(activity_data)
-        for client in connected_clients[gateway_id]:
-            await client.send_text(message)
-        print(f"🚀 WebSocket data sent (Gateway: {gateway_id}): {message}")
-    else:
-        print(f"⚠️ No WebSocket clients found (Gateway: {gateway_id})")
+    await manager.send_to_gateway(gateway_id, activity_data) 
