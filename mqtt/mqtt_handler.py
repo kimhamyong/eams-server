@@ -3,8 +3,8 @@ import json
 import asyncio
 from gmqtt import Client as MQTTClient
 from dotenv import load_dotenv
-from app.services.redis_service import save_activity
-from ws.handlers.send_activity import send_websocket_activity
+from app.redis import save_activity
+from ws.ws_handlers import send_websocket_activity
 
 load_dotenv()
 
