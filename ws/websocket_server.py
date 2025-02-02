@@ -16,7 +16,9 @@ class ConnectionManager:
             if gateway_id not in self.connected_clients:
                 self.connected_clients[gateway_id] = set()
             self.connected_clients[gateway_id].add(websocket)
-        print(f"✅ WebSocket client connected (Gateway: {gateway_id}) - Active connections: {len(self.connected_clients[gateway_id])}")
+        print(f"✅ WebSocket client connected (Gateway: {gateway_id})")
+        print(f"📌 현재 연결된 clients: {self.connected_clients}")
+        print(f"📌 manager 객체 메모리 주소 (connect): {id(self)}")
 
     async def disconnect(self, websocket: WebSocket, gateway_id: str):
         """특정 gateway_id를 가진 클라이언트 연결 해제"""
@@ -30,17 +32,19 @@ class ConnectionManager:
     async def send_to_gateway(self, gateway_id: str, message: dict):
         """특정 gateway_id를 가진 모든 클라이언트에게 메시지 전송"""
         async with self.lock:
+            print(f"📌 메시지 전송 시점의 connected_clients 상태: {self.connected_clients}")  # 상태 확인
             if gateway_id in self.connected_clients:
                 message_json = json.dumps(message)
                 for client in self.connected_clients[gateway_id]:
                     try:
                         await client.send_text(message_json)
+                        print(f"✅ Message sent to {gateway_id}: {message_json}")
                     except Exception as e:
-                        print(f"⚠️ WebSocket send failed (Gateway: {gateway_id}): {e}")
+                        print(f"❌ WebSocket send failed (Gateway: {gateway_id}): {e}")
                         await self.disconnect(client, gateway_id)  # 비정상 연결 제거
                 print(f"🚀 Sent message to Gateway {gateway_id}: {message_json}")
             else:
-                print(f"⚠️ No active WebSocket clients for Gateway {gateway_id}")
+                print(f"❌ No active WebSocket clients for Gateway {gateway_id}")
 
 # ✅ 웹소켓 매니저 인스턴스 생성 (이걸 다른 파일에서 가져와서 사용 가능)
 manager = ConnectionManager()
@@ -53,3 +57,4 @@ async def websocket_endpoint(websocket: WebSocket, gateway_id: str):
             await websocket.receive_text()  # 연결 유지
     except WebSocketDisconnect:
         await manager.disconnect(websocket, gateway_id)
+
