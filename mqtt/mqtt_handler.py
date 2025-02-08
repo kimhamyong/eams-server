@@ -5,6 +5,9 @@ from gmqtt import Client as MQTTClient
 from dotenv import load_dotenv
 from app.redis import save_activity
 from ws.ws_handlers import send_websocket_activity
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 
@@ -31,9 +34,8 @@ async def on_message(client, topic, payload, qos, properties):
             "sensor": sensor,
             "timestamp": timestamp
         }
-        await send_websocket_activity(activity_data)
-
         print(f"📩 MQTT Received: {data}")
+        await send_websocket_activity(activity_data)
     
     except Exception as e:
         print(f"❌ MQTT Data Processing Error: {e}")
