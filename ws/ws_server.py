@@ -46,7 +46,7 @@ class ConnectionManager:
             else:
                 print(f"❌ No active WebSocket clients for Gateway {gateway_id}")
 
-# ✅ 웹소켓 매니저 인스턴스 생성 (이걸 다른 파일에서 가져와서 사용 가능)
+# 웹소켓 매니저 인스턴스 생성
 manager = ConnectionManager()
 
 async def websocket_endpoint(websocket: WebSocket, gateway_id: str):
