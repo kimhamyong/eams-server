@@ -44,11 +44,21 @@ sequenceDiagram
     participant UI
 
     MQTT Broker->>FastAPI Server: Forward MQTT message
-    FastAPI Server->>Redis: Store sensor activity (with TTL)
+    activate FastAPI Server
     FastAPI Server->>UI: Send real-time status update
+    FastAPI Server->>Redis: Store sensor activity
+    deactivate FastAPI Server
+
+    activate Redis
+    note over Redis: Data stored with TTL
 
     Redis->>FastAPI Server: Notify when TTL expires
+    deactivate Redis
+
+    activate FastAPI Server
     FastAPI Server->>Redis: Check if all activity exists for a given gateway
+    deactivate FastAPI Server
+
     alt If no activity
         FastAPI Server->>UI: Send inactivity warning
     end
