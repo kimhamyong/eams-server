@@ -6,14 +6,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-REDIS_HOST = os.getenv("REDIS_HOST")  # 기본값을 'redis'로 설정
-REDIS_PORT = int(os.getenv("REDIS_PORT"))
+# Load Redis host and port from environment variables
+REDIS_HOST = os.getenv("REDIS_HOST")  # Default set to 'redis'
+REDIS_PORT = int(os.getenv("REDIS_PORT"))  # Redis port number
 
 def get_redis_client():
+    """Returns a Redis client instance."""
     return redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 async def subscribe_alerts():
-    """Redis Pub/Sub에서 alert_channel을 비동기적으로 구독"""
+    """Subscribes asynchronously to the Redis Pub/Sub `alert_channel`.
+
+    - Listens for messages on `alert_channel` where expired gateway data triggers an alert.
+    - If no remaining data exists for a gateway, a WebSocket alert is sent.
+    """
     r = get_redis_client()
     pubsub = r.pubsub()
     pubsub.subscribe("alert_channel")
@@ -25,10 +31,10 @@ async def subscribe_alerts():
         if message:
             gateway_id = message["data"]
             
-            # ✅ Redis에서 해당 gateway_id 관련 데이터가 남아 있는지 확인
+            # Check if there is any remaining data for the gateway in Redis
             remaining_keys = r.keys(f"{gateway_id}:*")
             
-            if not remaining_keys:  # ✅ 모든 데이터가 삭제된 경우에만 WebSocket 전송
+            if not remaining_keys:  # Only send a WebSocket alert if all data is deleted
                 alert_data = {
                     "gateway_id": gateway_id,
                     "message": "no activity detected"
@@ -38,8 +44,8 @@ async def subscribe_alerts():
             else:
                 print(f"⏳ Alert received but data still exists for {gateway_id}, skipping alert.")
         
-        await asyncio.sleep(0.1)  # ✅ CPU 점유율을 낮추기 위해 대기
+        await asyncio.sleep(0.1)  # Prevents high CPU usage by adding a small delay
 
 async def start_subscriber():
-    """Subscriber를 독립적인 태스크로 실행"""
-    asyncio.create_task(subscribe_alerts())  # ✅ 독립 실행하여 FastAPI를 블로킹하지 않음
+    """Starts the Redis subscriber as an independent async task."""
+    asyncio.create_task(subscribe_alerts())  # Runs independently without blocking FastAPI

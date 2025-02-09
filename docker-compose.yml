@@ -6,15 +6,13 @@ services:
     container_name: fastapi
     restart: always
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "${SERVER_PORT}:${SERVER_PORT}"  
     depends_on:
       - redis
     environment:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    volumes:
-      - .:/app
+      - REDIS_PORT=${REDIS_PORT}  
 
   redis:
     image: redis:alpine
@@ -22,6 +20,4 @@ services:
     restart: always
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
-    volumes:
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--notify-keyspace-events", "xE"]
+    command: ["redis-server", "--notify-keyspace-events", "xE"]
