@@ -57,8 +57,8 @@ sequenceDiagram
 
     activate FastAPI Server
     FastAPI Server->>Redis: Check if all activity exists for a given gateway
-    deactivate FastAPI Server
 
     alt If no activity
         FastAPI Server->>UI: Send inactivity warning
     end
+    deactivate FastAPI Server
