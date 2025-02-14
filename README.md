@@ -62,3 +62,22 @@ sequenceDiagram
         FastAPI Server->>UI: Send inactivity warning
     end
     deactivate FastAPI Server
+```
+
+
+## Getting Started
+Clone the repository 
+```bash
+git clone <REPO_URL>
+cd <REPO_NAME>
+cd server
+```
+Set up `.env` file
+```bash
+$ cp .env.example .env
+```
+Build & run using Docker Compose
+```bash
+docker compose up --build
+```
+
